@@ -301,3 +301,11 @@ export default async function Sushis() {
   );
 }
 ```
+
+## Lesson 8 Notes: Props, Fetch, Array.map()
+
+We've used props to pass values between the About parent and Publisher child components.
+
+Games are now retried from the server API using fetch().
+
+================
