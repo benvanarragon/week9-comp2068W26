@@ -63,3 +63,29 @@ h3 {
   background-color: #332f2f;
   margin: 1rem;
 }
+
+input,
+textarea {
+  border: 1px solid;
+  border-color: grey;
+  width: 450px;
+  border-radius: 0.25rem;
+}
+
+input.focus textarea.focus {
+  box-shadow: 0 0 0 2px rgba(66, 153, 225, 0.5);
+}
+
+textarea,
+.rte {
+  height: 300px;
+}
+
+label {
+  width: 200px;
+  display: block;
+}
+
+fieldset {
+  margin-bottom: 10px;
+}

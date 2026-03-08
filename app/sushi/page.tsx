@@ -23,6 +23,7 @@ export default async function Sushis() {
   return (
     <main>
       <h1>Our Sushi</h1>
+      <Link href="/sushi/create">Add a New Sushi</Link>
       <ul>
         {sushi.map((sushi) => (
           <li key={sushi._id} className="card">

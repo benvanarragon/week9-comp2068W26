@@ -455,3 +455,175 @@ import Link from "next/link";
 COMMIT HERE
 
 ============
+
+ADD A LINK TO CREATE A NEW SUSHI FROM /sushi/ page
+INSIDE OF `/sushi/page.tsx`
+
+` <Link href="/sushi/create">Add a New Sushi</Link>`
+
+==============
+
+CREATE A NEW FOLDER UNDER `/sushi/create` AND ADD `page.tsx`
+
+===============
+
+IN `page.tsx` ADD THE FOLLOWING
+
+```tsx
+"use client"; // 1. Must be a client component for state/events
+
+import { useState } from "react";
+import { useRouter } from "next/navigation";
+
+export default function CreateSushi() {
+  const router = useRouter();
+
+  // 2. Setup simple state for the two fields
+  const [name, setName] = useState("");
+  const [price, setPrice] = useState("");
+
+  // 3. Handle the form submission
+  const handleSubmit = async (e: React.SyntheticEvent) => {
+    e.preventDefault();
+
+    try {
+      // 4. Send data to your internal API route
+      const response = await fetch("/api/sushi/create", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          name: name,
+          price: parseFloat(price),
+        }),
+      });
+
+      if (response.ok) {
+        // 5. Redirect back to the sushi list on success
+        router.push("/sushi");
+        router.refresh();
+      } else {
+        alert("Failed to save sushi");
+      }
+    } catch (error) {
+      console.error("Error:", error);
+    }
+  };
+
+  return (
+    <main>
+      <h1>Sushi Details</h1>
+      {/*  Attach the submit handler */}
+      <form onSubmit={handleSubmit}>
+        <fieldset>
+          <label htmlFor="sushiname">Sushi Name: *</label>
+          <input
+            name="sushiname"
+            id="sushiname"
+            required
+            value={name}
+            onChange={(e) => setName(e.target.value)} // Update state as user types
+          />
+        </fieldset>
+
+        <fieldset>
+          <label htmlFor="price">Price:</label>
+          <input
+            type="number"
+            step="0.01"
+            name="price"
+            id="price"
+            value={price}
+            onChange={(e) => setPrice(e.target.value)} // Update state as user types
+          />
+        </fieldset>
+
+        <button type="submit">Save</button>
+      </form>
+    </main>
+  );
+}
+```
+
+=============
+
+ADD THE FOLLWING TO `globals.css`
+
+```css
+input,
+textarea {
+  border: 1px solid;
+  border-color: grey;
+  width: 450px;
+  border-radius: 0.25rem;
+}
+
+input.focus textarea.focus {
+  box-shadow: 0 0 0 2px rgba(66, 153, 225, 0.5);
+}
+
+textarea,
+.rte {
+  height: 300px;
+}
+
+label {
+  width: 200px;
+  display: block;
+}
+
+fieldset {
+  margin-bottom: 10px;
+}
+```
+
+================
+
+Why use the "Internal" Next.js Route at all? (The "Proxy" Pattern)
+Technically, you could call your Express API directly from the form (fetch("http://localhost:5000/...")). However, using the internal api/sushi/create/route.ts provides three major professional features:
+Security (Hiding the Backend): If you call Express directly, any user can look at the "Network" tab in their browser and see your secret backend URL and IP address. By using an internal route, the user only sees /api/sushi/create. Your backend stays "hidden" behind Next.js.
+Avoiding CORS Errors: Browsers often block a website on Port 3000 from talking to a server on Port 5000 (Cross-Origin Resource Sharing). However, Server-to-Server communication (Next.js server to Express server) is never blocked by CORS.
+Environment Variables: You can use secret API keys in your Next.js route that the browser never sees.
+=====================
+
+CREATE A NEW FOLDER INSIDE `/api/sushi/create` AND
+ADD A FILE NAMED `route.ts`
+
+INSIDE THAT FILE ADD THE FOLLOWING CODE
+
+```TS
+// POST: /api/sushi => create new sushi
+export async function POST(req: Request) {
+  try {
+    // 1. Read the data sent from the frontend form
+    const body = await req.json();
+
+    // 2. Call your Express server API
+    const res: Response = await fetch(
+      `${process.env.NEXT_PUBLIC_SERVER_URL}/api/sushi`,
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(body),
+      },
+    );
+
+    // 3. Error handle
+    if (!res.ok) {
+      return Response.json(
+        { message: "Failed to create sushi on server" },
+        { status: res.status },
+      );
+    }
+
+    // 4. Return the server's response back to the frontend
+    const data = await res.json();
+    return Response.json(data);
+  } catch (error) {
+    console.error("Route Error:", error);
+    return Response.json({ message: "Internal Server Error" }, { status: 500 });
+  }
+}
+
+```
