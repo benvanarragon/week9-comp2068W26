@@ -254,7 +254,7 @@ export interface Sushi {
 `/app/api/sushi/route.ts`
 
 ```ts
-// file used to make api calls to server at /api/v1/games (GET and POST)
+// file used to make api calls to server at /api/sushi (GET and POST)
 export async function GET() {
   // make get req to fetch all games from express api
   const res: Response = await fetch("http://localhost:4000/api/sushi");
@@ -269,7 +269,7 @@ import { Sushi } from "../types/sushi";
 
 async function getSushi(): Promise<Sushi[]> {
   // use router to call server api
-  const res: Response = await fetch("http://localhost:4000/api/sushi");
+  const res: Response = await fetch("http://localhost:3000/api/sushi");
   if (!res.ok) {
     throw new Error("Failed to fetch sushi");
   }
@@ -309,3 +309,45 @@ We've used props to pass values between the About parent and Publisher child com
 Games are now retried from the server API using fetch().
 
 ================
+
+CREATE `.env.local` in the ROOT of the next.js project
+
+ADD THE FOLLOWING VARS
+
+`NEXT_PUBLIC_SERVER_URL=http://localhost:4000`
+`NEXT_PUBLIC_CLIENT_URL=http://localhost:3000`
+
+THEN IN `app/sushi/page.tsx` replace
+
+```tsx
+const res: Response = await fetch(
+  `${process.env.NEXT_PUBLIC_CLIENT_URL}/api/sushi`,
+);
+```
+
+AND IN `app/api/sushi/route.ts` replace
+
+```ts
+const res: Response = await fetch(
+  `${process.env.NEXT_PUBLIC_SERVER_URL}/api/sushi`,
+);
+```
+
+==================
+
+RESTART YOUR SERVER, .ENV VARS WILL RELOAD
+
+=================
+
+INSIDE OF `/sushi/page.tsx`
+
+add the className="card" to the <li> element
+
+```tsx
+<li key={sushi._id} className="card">
+  {"Roll: " + sushi.name}
+  <br />
+  {"Price: $" + sushi.price}
+  <hr />
+</li>
+```

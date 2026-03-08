@@ -2,7 +2,9 @@ import { Sushi } from "../types/sushi";
 
 async function getSushi(): Promise<Sushi[]> {
   // use router to call server api
-  const res: Response = await fetch("http://localhost:4000/api/sushi");
+  const res: Response = await fetch(
+    `${process.env.NEXT_PUBLIC_CLIENT_URL}/api/sushi`,
+  );
   if (!res.ok) {
     throw new Error("Failed to fetch sushi");
   }
@@ -22,7 +24,7 @@ export default async function Sushis() {
       <h1>Our Sushi</h1>
       <ul>
         {sushi.map((sushi) => (
-          <li key={sushi._id}>
+          <li key={sushi._id} className="card">
             {"Roll: " + sushi.name}
             <br />
             {"Price: $" + sushi.price}
