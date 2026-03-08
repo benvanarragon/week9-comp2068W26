@@ -351,3 +351,107 @@ add the className="card" to the <li> element
   <hr />
 </li>
 ```
+
+=================
+ADD GET ROUTES FOR SUSHI BY ID
+
+=================
+We want to click a card post title and load the full document on a new page, passing the post id as part of the url
+
+· Next allows us to define a dynamic URL section / parameter using [id]
+
+· We’ll create a separate route for /games/[id] for GET (one), PUT, DELETE,
+
+· First we need a GET one method in server API
+
+· Create [id] folder under `api/sushi/[id]`/, then route.ts inside
+
+```ts
+// GET: /api/sushi/:id => fetch single sushi
+export async function GET(
+  req: Request,
+  { params }: { params: Promise<{ id: string }> },
+) {
+  // read id from url params
+  const { id } = await params;
+
+  // call get with id on server api
+  const res: Response = await fetch(
+    `${process.env.NEXT_PUBLIC_SERVER_URL}/api/sushi/${id}`,
+  );
+
+  // error handle
+  if (!res.ok) throw new Error("Failed to fetch sushi");
+
+  // return game in json
+  return Response.json(await res.json());
+}
+```
+
+then weneed a page to display the fetch under `/sushi/[id]/page.tsx`
+
+```tsx
+import { Sushi } from "../../types/sushi";
+
+// call route which calls api to fetch game data
+async function getSushi(id: string): Promise<Sushi> {
+  const res: Response = await fetch(
+    `${process.env.NEXT_PUBLIC_CLIENT_URL}/api/sushi/${id}`,
+  );
+  if (!res.ok) {
+    throw new Error("Could not fetch sushi");
+  }
+  return res.json();
+}
+
+export default async function SushiDetails({
+  params,
+}: {
+  params: Promise<{ id: string }>;
+}) {
+  // try to fetch sushi before rendering output
+  const { id } = await params;
+
+  try {
+    const sushi = await getSushi(id);
+
+    return (
+      <main>
+        <h1>Sushi Details</h1>
+        <article className="card">
+          <h3>{sushi.name}</h3>
+          <p>{sushi.price}</p>
+        </article>
+      </main>
+    );
+  } catch (Error) {
+    return (
+      <main>
+        <h1>Sushi Not Found</h1>
+      </main>
+    );
+  }
+}
+```
+
+NOW ADD A BUTTON FROM MAIN SUSHI PAGE TO VIEW EACH BY ID
+
+=======================
+
+```tsx
+import Link from "next/link";
+
+...
+
+<h3>{"Roll: " + sushi.name}</h3>
+            <br />
+            <Link href={`/sushi/${sushi._id}`}>
+              <button>View Details</button>
+            </Link>
+```
+
+================
+
+COMMIT HERE
+
+============

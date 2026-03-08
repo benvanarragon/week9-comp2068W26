@@ -1,4 +1,5 @@
 import { Sushi } from "../types/sushi";
+import Link from "next/link";
 
 async function getSushi(): Promise<Sushi[]> {
   // use router to call server api
@@ -25,10 +26,11 @@ export default async function Sushis() {
       <ul>
         {sushi.map((sushi) => (
           <li key={sushi._id} className="card">
-            {"Roll: " + sushi.name}
+            <h3>{"Roll: " + sushi.name}</h3>
             <br />
-            {"Price: $" + sushi.price}
-            <hr />
+            <Link href={`/sushi/${sushi._id}`}>
+              <button>View Details</button>
+            </Link>
           </li>
         ))}
       </ul>
